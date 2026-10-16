@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Poli;
 use App\Models\Obat;
+use App\Models\JadwalPeriksa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -144,6 +145,41 @@ class AuthFlowTest extends TestCase
             ->assertOk()
             ->assertSee('Edit Obat')
             ->assertSee('Paracetamol');
+    }
+
+    public function test_doctor_can_open_jadwal_periksa_from_sidebar(): void
+    {
+        $dokter = User::factory()->create([
+            'role' => 'dokter',
+        ]);
+        $jadwal = JadwalPeriksa::create([
+            'id_dokter' => $dokter->id,
+            'hari' => 'Senin',
+            'jam_mulai' => '08:00',
+            'jam_selesai' => '12:00',
+        ]);
+
+        $this->actingAs($dokter)
+            ->get(route('dokter.dashboard'))
+            ->assertOk()
+            ->assertSee('Jadwal Periksa')
+            ->assertSee(route('jadwal-periksa.index'));
+
+        $this->get(route('jadwal-periksa.index'))
+            ->assertOk()
+            ->assertSee('Jadwal Periksa')
+            ->assertSee('Senin')
+            ->assertSee('08:00')
+            ->assertSee('12:00');
+
+        $this->get(route('jadwal-periksa.create'))
+            ->assertOk()
+            ->assertSee('Tambah Jadwal Periksa');
+
+        $this->get(route('jadwal-periksa.edit', $jadwal))
+            ->assertOk()
+            ->assertSee('Edit Jadwal Periksa')
+            ->assertSee('Senin');
     }
 
     public function test_admin_can_open_doctor_management_and_form_pages(): void
