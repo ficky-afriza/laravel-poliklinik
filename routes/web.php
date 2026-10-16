@@ -4,6 +4,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminPoliController;
 use App\Http\Controllers\Admin\DokterController;
+use App\Http\Controllers\Admin\ObatController;
 use App\Http\Controllers\Admin\PasienController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
             'update' => 'polis.update',
             'destroy' => 'polis.destroy',
         ]);
+
+    Route::resource('dokter', DokterController::class)->except('show');
+    Route::resource('pasien', PasienController::class)->except('show');
+    Route::resource('obat', ObatController::class)->except('show');
 });
 
 
@@ -56,21 +61,4 @@ Route::middleware(['auth', 'role:pasien'])->prefix('pasien')->group(function () 
     Route::get('/poli', function () {
         return view('pasien.dashboard');
     })->name('pasien.poli.index');
-});
-
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-    Route::resource('polis', AdminPoliController::class);
-    Route::resource('dokter', DokterController::class)->except('show');
-});
-
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-    Route::resource('polis', AdminPoliController::class);
-    Route::resource('dokter', DokterController::class);
-    Route::resource('pasien', PasienController::class)->except('show');
 });

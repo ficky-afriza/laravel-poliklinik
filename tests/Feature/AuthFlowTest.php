@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Poli;
+use App\Models\Obat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -112,6 +113,37 @@ class AuthFlowTest extends TestCase
             ->assertSee('Edit Pasien')
             ->assertSee('Pasien Contoh')
             ->assertSee('Kosongkan jika tidak ingin mengubah...');
+    }
+
+    public function test_admin_can_open_medicine_management_and_form_pages(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+        $obat = Obat::create([
+            'nama_obat' => 'Paracetamol',
+            'kemasan' => 'Strip',
+            'harga' => 12000,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('obat.index'))
+            ->assertOk()
+            ->assertSee('Data Obat')
+            ->assertSee('Tambah Obat')
+            ->assertSee('Paracetamol')
+            ->assertSee('Strip')
+            ->assertSee('Rp 12.000');
+
+        $this->get(route('obat.create'))
+            ->assertOk()
+            ->assertSee('Tambah Obat')
+            ->assertSee('Masukkan nama obat...');
+
+        $this->get(route('obat.edit', $obat))
+            ->assertOk()
+            ->assertSee('Edit Obat')
+            ->assertSee('Paracetamol');
     }
 
     public function test_admin_can_open_doctor_management_and_form_pages(): void
